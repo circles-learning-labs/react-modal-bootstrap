@@ -60,7 +60,7 @@ class Modal extends Component {
 
   handleBackDropClick = (e) => {
     let {backdrop} = this.props;
-    if (e.target !== e.currentTarget || !backdrop) {
+    if (e.target !== e.currentTarget || !backdrop || !this.props.isOpen) {
       return;
     }
     this.requestHide();
