@@ -1,161 +1,237 @@
-import React, {Component} from 'react';
-import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
-import classnames from 'classnames';
-import Radium from 'radium';
-import assign from 'lodash.assign';
+'use strict';
 
-const findParentNode = (parentClass, child) => {
-  let parent = child.parentNode;
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _classnames = require('classnames');
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
+var _radium = require('radium');
+
+var _radium2 = _interopRequireDefault(_radium);
+
+var _lodashAssign = require('lodash.assign');
+
+var _lodashAssign2 = _interopRequireDefault(_lodashAssign);
+
+var findParentNode = function findParentNode(parentClass, child) {
+  var parent = child.parentNode;
   while (parent && (parent.className === undefined || parent.className.indexOf(parentClass) === -1)) {
     parent = parent.parentNode;
   }
   return parent;
 };
 
-@Radium
-class Modal extends Component {
-  static propTypes = {
-    className: PropTypes.string,
-    isOpen: PropTypes.bool.isRequired,
-    backdrop: PropTypes.bool,
-    keyboard: PropTypes.bool,
-    size: PropTypes.oneOf(['modal-lg', 'modal-sm', '']),
-    onRequestHide: PropTypes.func,
-    backdropStyles: PropTypes.object,
-    dialogStyles: PropTypes.object,
-    children: PropTypes.node.isRequired
-  };
+var Modal = (function (_Component) {
+  _inherits(Modal, _Component);
 
-  static defaultProps = {
-    isOpen: false,
-    backdrop: true,
-    keyboard: true,
-    size: '',
-    backdropStyles: {},
-    dialogStyles: {}
-  };
+  function Modal() {
+    var _this = this;
 
-  componentDidMount = () => {
-    document.addEventListener('keydown', this.handleKeyDown);
-    this.handleBody();
-    this.handleParent();
-  };
+    _classCallCheck(this, _Modal);
 
-  componentWillUnmount = () => {
-    document.removeEventListener('keydown', this.handleKeyDown);
-  };
+    _get(Object.getPrototypeOf(_Modal.prototype), 'constructor', this).apply(this, arguments);
 
-  componentDidUpdate = () => {
-    this.handleBody();
-    this.handleParent();
-  };
+    this.state = {
+      'previousTarget': undefined
+    };
 
-  requestHide = () => {
-    let {onRequestHide} = this.props;
-    if (onRequestHide) {
-      onRequestHide();
-    }
-  };
+    this.componentDidMount = function () {
+      document.addEventListener('keydown', _this.handleKeyDown);
+      _this.handleBody();
+      _this.handleParent();
+    };
 
-  handleBackDropClick = (e) => {
-    let {backdrop} = this.props;
-    if (e.target !== e.currentTarget || !backdrop || !this.props.isOpen) {
-      return;
-    }
-    this.requestHide();
-  };
+    this.componentWillUnmount = function () {
+      document.removeEventListener('keydown', _this.handleKeyDown);
+    };
 
-  handleFocus = ()=> {
-    this.focus = true;
-  };
+    this.componentDidUpdate = function () {
+      _this.handleBody();
+      _this.handleParent();
+    };
 
-  handleBlur = () => {
-    this.focus = false;
-  };
+    this.requestHide = function () {
+      var onRequestHide = _this.props.onRequestHide;
 
-  handleKeyDown = (e) => {
-    let {keyboard} = this.props;
-    let el = ReactDOM.findDOMNode(this);
-    let childrenOpen = el.className.indexOf('children-open') !== -1;
-    if (keyboard && this.focus && e.keyCode === 27 && !childrenOpen) {
-      e.preventDefault();
-      setTimeout(this.requestHide, 0);
-    }
-  };
-
-  handleBody = () => {
-    let openModals = document.getElementsByClassName('modal-backdrop-open');
-    if (openModals.length < 1) {
-      document.body.className = document.body.className.replace(/ ?modal-open/, '');
-    } else if (document.body.className.indexOf('modal-open') === -1) {
-      document.body.className += document.body.className.length ? ' modal-open' : 'modal-open';
-    }
-  };
-
-  handleParent = () => {
-    let parentNode = findParentNode('modal-backdrop', ReactDOM.findDOMNode(this));
-    if (parentNode) {
-      let {isOpen} = this.props;
-      if (isOpen) {
-        parentNode.className += parentNode.className.length ? ' children-open' : 'children-open';
-        parentNode.style.overflowY = 'hidden';
-      } else {
-        parentNode.className = parentNode.className.replace(/ ?children-open/, '');
-        parentNode.style.overflowY = 'auto';
+      if (onRequestHide) {
+        onRequestHide();
       }
-    }
-  };
+    };
 
-  render() {
-    let {className, isOpen, backdropStyles, size, dialogStyles, children} = this.props;
-    let backDropClass = classnames(['modal-backdrop', className], {
-      'modal-backdrop-open': isOpen
-    }).trim();
+    this.handleClickEvent = function (e) {
+      var backdrop = _this.props.backdrop;
 
-    backdropStyles = assign({
-      base: {
-        background: 'rgba(0, 0, 0, .7)',
-        opacity: 0,
-        visibility: 'hidden',
-        transition: 'all 0.4s',
-        overflowX: 'hidden',
-        overflowY: 'auto'
-      },
-      open: {
-        opacity: 1,
-        visibility: 'visible'
+      if (e.target !== _this.state.previousTarget || e.target !== e.currentTarget || !backdrop || !_this.props.isOpen) {
+        return _this.setState({ 'previousTarget': e.target });
       }
-    }, backdropStyles);
+      _this.requestHide();
+    };
 
-    let dialogClass = classnames(['modal-dialog', size], {
-      'modal-dialog-open': isOpen
-    });
+    this.handleFocus = function () {
+      _this.focus = true;
+    };
 
-    dialogStyles = assign({
-      base: {
-        top: -600,
-        transition: 'top 0.4s'
-      },
-      open: {
-        top: 0
+    this.handleBlur = function () {
+      _this.focus = false;
+    };
+
+    this.handleKeyDown = function (e) {
+      var keyboard = _this.props.keyboard;
+
+      var el = _reactDom2['default'].findDOMNode(_this);
+      var childrenOpen = el.className.indexOf('children-open') !== -1;
+      if (keyboard && _this.focus && e.keyCode === 27 && !childrenOpen) {
+        e.preventDefault();
+        setTimeout(_this.requestHide, 0);
       }
-    }, dialogStyles);
+    };
 
-    return (
-      <div className={backDropClass}
-        style={[backdropStyles.base, isOpen && backdropStyles.open]}
-        onClick={this.handleBackDropClick}>
-        <div className={dialogClass}
-          style={[dialogStyles.base, isOpen && dialogStyles.open]}
-          tabIndex="-1"
-          onFocus={this.handleFocus}
-          onBlur={this.handleBlur}>
-          <div className="modal-content">{children}</div>
-        </div>
-      </div>
-    );
+    this.handleBody = function () {
+      var openModals = document.getElementsByClassName('modal-backdrop-open');
+      if (openModals.length < 1) {
+        document.body.className = document.body.className.replace(/ ?modal-open/, '');
+      } else if (document.body.className.indexOf('modal-open') === -1) {
+        document.body.className += document.body.className.length ? ' modal-open' : 'modal-open';
+      }
+    };
+
+    this.handleParent = function () {
+      var parentNode = findParentNode('modal-backdrop', _reactDom2['default'].findDOMNode(_this));
+      if (parentNode) {
+        var isOpen = _this.props.isOpen;
+
+        if (isOpen) {
+          parentNode.className += parentNode.className.length ? ' children-open' : 'children-open';
+          parentNode.style.overflowY = 'hidden';
+        } else {
+          parentNode.className = parentNode.className.replace(/ ?children-open/, '');
+          parentNode.style.overflowY = 'auto';
+        }
+      }
+    };
   }
-}
 
-export default Modal;
+  _createClass(Modal, [{
+    key: 'render',
+    value: function render() {
+      var _props = this.props;
+      var className = _props.className;
+      var isOpen = _props.isOpen;
+      var backdropStyles = _props.backdropStyles;
+      var size = _props.size;
+      var dialogStyles = _props.dialogStyles;
+      var children = _props.children;
+
+      var backDropClass = (0, _classnames2['default'])(['modal-backdrop', className], {
+        'modal-backdrop-open': isOpen
+      }).trim();
+
+      backdropStyles = (0, _lodashAssign2['default'])({
+        base: {
+          background: 'rgba(0, 0, 0, .7)',
+          opacity: 0,
+          visibility: 'hidden',
+          transition: 'all 0.4s',
+          overflowX: 'hidden',
+          overflowY: 'auto'
+        },
+        open: {
+          opacity: 1,
+          visibility: 'visible'
+        }
+      }, backdropStyles);
+
+      var dialogClass = (0, _classnames2['default'])(['modal-dialog', size], {
+        'modal-dialog-open': isOpen
+      });
+
+      dialogStyles = (0, _lodashAssign2['default'])({
+        base: {
+          top: -600,
+          transition: 'top 0.4s'
+        },
+        open: {
+          top: 0
+        }
+      }, dialogStyles);
+
+      return _react2['default'].createElement(
+        'div',
+        { className: backDropClass,
+          style: [backdropStyles.base, isOpen && backdropStyles.open],
+          onMouseDown: this.handleClickEvent,
+          onMouseUp: this.handleClickEvent },
+        _react2['default'].createElement(
+          'div',
+          { className: dialogClass,
+            style: [dialogStyles.base, isOpen && dialogStyles.open],
+            tabIndex: '-1',
+            onFocus: this.handleFocus,
+            onBlur: this.handleBlur },
+          _react2['default'].createElement(
+            'div',
+            { className: 'modal-content' },
+            children
+          )
+        )
+      );
+    }
+  }], [{
+    key: 'propTypes',
+    value: {
+      className: _propTypes2['default'].string,
+      isOpen: _propTypes2['default'].bool.isRequired,
+      backdrop: _propTypes2['default'].bool,
+      keyboard: _propTypes2['default'].bool,
+      size: _propTypes2['default'].oneOf(['modal-lg', 'modal-sm', '']),
+      onRequestHide: _propTypes2['default'].func,
+      backdropStyles: _propTypes2['default'].object,
+      dialogStyles: _propTypes2['default'].object,
+      children: _propTypes2['default'].node.isRequired
+    },
+    enumerable: true
+  }, {
+    key: 'defaultProps',
+    value: {
+      isOpen: false,
+      backdrop: true,
+      keyboard: true,
+      size: '',
+      backdropStyles: {},
+      dialogStyles: {}
+    },
+    enumerable: true
+  }]);
+
+  var _Modal = Modal;
+  Modal = (0, _radium2['default'])(Modal) || Modal;
+  return Modal;
+})(_react.Component);
+
+exports['default'] = Modal;
+module.exports = exports['default'];
